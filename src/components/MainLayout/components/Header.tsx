@@ -9,6 +9,7 @@ import Menu from "@mui/material/Menu";
 import Cart from "~/components/MainLayout/components/Cart";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/material/Link";
+import CloudIcon from "@mui/icons-material/Cloud";
 
 export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -24,8 +25,9 @@ export default function Header() {
   };
 
   return (
-    <AppBar position="relative">
+    <AppBar position="relative" color="secondary">
       <Toolbar>
+        <CloudIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           <Link
             component={RouterLink}
@@ -33,7 +35,7 @@ export default function Header() {
             underline="none"
             to="/"
           >
-            My Store!
+            AWS course
           </Link>
         </Typography>
 
