@@ -15,7 +15,6 @@ const queryClient = new QueryClient({
 });
 
 (async () => {
-  // if (import.meta.env.DEV) {
   // until server is created
   if (true) {
     const { worker } = await import("./mocks/browser");
