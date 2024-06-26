@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 type CSVFileImportProps = {
   url: string;
@@ -8,7 +13,9 @@ type CSVFileImportProps = {
 };
 
 export default function CSVFileImport({ url, title }: CSVFileImportProps) {
-  const [file, setFile] = React.useState<File>();
+  const [file, setFile] = useState<File>();
+  const [isShowNotification, setShowNotification] = useState(false);
+  const [isShowBackdrop, setShowBackdrop] = useState(false);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -23,25 +30,43 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
   };
 
   const uploadFile = async () => {
-    console.log("uploadFile to", url);
+    if (!file) return;
 
-    // Get the presigned URL
-    // const response = await axios({
-    //   method: "GET",
-    //   url,
-    //   params: {
-    //     name: encodeURIComponent(file.name),
-    //   },
-    // });
-    // console.log("File to upload: ", file.name);
-    // console.log("Uploading to: ", response.data);
-    // const result = await fetch(response.data, {
-    //   method: "PUT",
-    //   body: file,
-    // });
-    // console.log("Result: ", result);
-    // setFile("");
+    setShowBackdrop(true);
+
+    const response = await axios({
+      method: "GET",
+      url,
+      params: {
+        name: encodeURIComponent(file.name),
+      },
+    });
+
+    const result = await fetch(response.data.url, {
+      method: "PUT",
+      body: file,
+    });
+
+    setShowBackdrop(false);
+
+    if (result.ok) {
+      setShowNotification(true);
+    }
+
+    removeFile();
   };
+
+  const handleClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setShowNotification(false);
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -55,6 +80,27 @@ export default function CSVFileImport({ url, title }: CSVFileImportProps) {
           <button onClick={uploadFile}>Upload file</button>
         </div>
       )}
+      <Snackbar
+        open={isShowNotification}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert
+          onClose={handleClose}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          The file has been uploaded!
+        </Alert>
+      </Snackbar>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isShowBackdrop}
+        onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
   );
 }
